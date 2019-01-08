@@ -82,7 +82,7 @@ elif [ -f "$LOCAL_SOURCE_DIR/build.gradle" ]; then
 
   # Use Gradle wrapper if available
   if [ -f "$LOCAL_SOURCE_DIR/gradlew" ]; then
-    GRADLE_CMD="./gradlew"
+    GRADLE_CMD="sh gradlew"
   else
     GRADLE_CMD="gradle"
   fi
