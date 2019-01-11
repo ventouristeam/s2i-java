@@ -10,6 +10,7 @@
 cd /opt/openshift && \
 exec java \
     -Djava.security.egd=file:/dev/./urandom \
-	-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8787 \
+	-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8787
+	$JAVA_OPTIONS \
     -jar /opt/openshift/app.jar \
     $APP_OPTIONS
