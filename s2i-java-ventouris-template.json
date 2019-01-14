@@ -1,0 +1,138 @@
+{
+	"kind": "Template",
+	"apiVersion": "v1",
+	"metadata": {
+		"name": "s2i-java-ventouris-template",
+		"annotations": {
+			"iconClass": "icon-jboss",
+			"description": "Ventouris s2i java template"
+		}
+	},
+	"labels": {
+		"application": "s2i-java-ventouris",
+		"build": "s2i-java-ventouris",
+		"createdBy": "template-s2i-java-ventouris"
+	},
+	"parameters": [{
+			"description": "The name for the application.",
+			"name": "APPLICATION_NAME",
+			"value": "s2i-java-ventouris"
+		}, {
+			"description": "Git source URI for application",
+			"name": "GIT_URI",
+			"value": "https://github.com/ventouristeam/s2i-java.git"
+		}, {
+			"description": "Git branch/tag reference",
+			"name": "GIT_REF",
+			"value": "master"
+		}, {
+			"description": "Github trigger secret",
+			"name": "GITHUB_TRIGGER_SECRET",
+			"from": "[a-zA-Z0-9]{8}",
+			"generate": "expression"
+		}, {
+			"description": "Generic build trigger secret",
+			"name": "GENERIC_TRIGGER_SECRET",
+			"from": "[a-zA-Z0-9]{8}",
+			"generate": "expression"
+		}, {
+			"description": "Gradle version",
+			"name": "GRADLE_VERSION",
+			"value": "4.6"
+		}
+	],
+	"objects": [{
+			"kind": "BuildConfig",
+			"apiVersion": "build.openshift.io/v1",
+			"metadata": {
+				"name": "${APPLICATION_NAME}",
+				"creationTimestamp": null,
+				"annotations": {
+					"openshift.io/generated-by": "OpenShiftNewBuild"
+				}
+			},
+			"spec": {
+				"triggers": [{
+						"type": "GitHub",
+						"github": {
+							"secret": "${GITHUB_TRIGGER_SECRET}"
+						}
+					}, {
+						"type": "Generic",
+						"generic": {
+							"secret": "${GENERIC_TRIGGER_SECRET}"
+						}
+					}, {
+						"type": "ConfigChange"
+					}, {
+						"type": "ImageChange",
+						"imageChange": {}
+					}
+				],
+				"runPolicy": "Serial",
+				"source": {
+					"type": "Git",
+					"git": {
+						"uri": "${GIT_URI}",
+						"ref": "${GIT_REF}"
+					}
+				},
+				"strategy": {
+					"type": "Docker",
+					"dockerStrategy": {
+						"from": {
+							"kind": "ImageStreamTag",
+							"name": "base-centos7:latest"
+						},
+						"env": [{
+								"name": "GRADLE_VERSION",
+								"value": "${GRADLE_VERSION}"
+							}
+						]
+					}
+				},
+				"output": {
+					"to": {
+						"kind": "ImageStreamTag",
+						"name": "${APPLICATION_NAME}:latest"
+					}
+				},
+				"resources": {},
+				"postCommit": {},
+				"nodeSelector": null,
+				"successfulBuildsHistoryLimit": 5,
+				"failedBuildsHistoryLimit": 5
+			}
+		}, {
+			"kind": "ImageStream",
+			"apiVersion": "image.openshift.io/v1",
+			"metadata": {
+				"name": "${APPLICATION_NAME}",
+				"generation": 1,
+				"creationTimestamp": null,
+				"annotations": {
+					"openshift.io/generated-by": "OpenShiftNewBuild"
+				}
+			},
+			"spec": {
+				"lookupPolicy": {
+					"local": false
+				},
+				"tags": [{
+						"name": "latest",
+						"annotations": null,
+						"from": {
+							"kind": "DockerImage",
+							"name": "docker-registry.default.svc:5000/ci00067482-ventouris-poc/${APPLICATION_NAME}:latest"
+						},
+						"generation": null,
+						"importPolicy": {},
+						"referencePolicy": {
+							"type": ""
+						}
+					}
+				]
+			}
+		}
+	]
+}
