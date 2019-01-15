@@ -1,6 +1,7 @@
 #!/bin/bash
 . $(dirname $0)/functions
 
+ls /tmp/src
 PROJECT_NAME=$(cat /tmp/src/settings.gradle | sed -n "s/.*rootProject\.name = '\(.*\)'/\1/p")
 APP_JAR_NAME=${APP_JAR_NAME:-${PROJECT_NAME}}
 HOME=/opt/app-root/src
